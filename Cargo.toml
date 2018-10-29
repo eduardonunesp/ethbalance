@@ -1,0 +1,7 @@
+[package]
+name = "ethbalance"
+version = "0.1.0"
+authors = ["Eduardo Nunes Pereira <eduardonunesp@gmail.com>"]
+
+[dependencies]
+web3 = "0.4.0"
