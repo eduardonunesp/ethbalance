@@ -13,11 +13,17 @@ fn get_balance(
 }
 
 pub fn run() {
-    let (_eloop, transport) = match web3::transports::WebSocket::new("wss://mainnet.infura.io/ws") {
+    let network = if cfg!(debug_assertions) {
+        "ws://localhost:7545"
+    } else {
+        "wss://mainnet.infura.io/ws"
+    };
+
+    let (_eloop, transport) = match web3::transports::WebSocket::new(network) {
         Ok((l, t)) => (l, t),
         Err(err) => {
             println!("Cannot connect due {:?}", err);
-            std::process::exit(-1);
+            std::process::exit(-1)
         }
     };
 
@@ -26,21 +32,24 @@ pub fn run() {
     let account_str = match std::env::args().skip(1).last() {
         Some(v) => v,
         None => {
-            println!("No address found");
-            std::process::exit(-1);
+            println!("Usage: {} <address>", std::env::args().next().unwrap());
+            std::process::exit(-1)
         }
     };
 
     let account = match H160::from_str(&account_str[2..]) {
         Ok(v) => v,
-        Err(_) => panic!("Invalid account"),
+        Err(_) => {
+            println!("Invalid account");
+            std::process::exit(-1)
+        }
     };
 
     let balance = match get_balance(&web3, &account) {
         Ok(value) => value,
         Err(err) => {
             println!("Balance not found for {:?} cause {:?}", account, err);
-            return;
+            std::process::exit(-1)
         }
     };
 
